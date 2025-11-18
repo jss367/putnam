@@ -3,11 +3,13 @@
     "configurations": [
         {
             "name": "Extract article (Fuller 1964)",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/extract_article.py",
             "args": [
-                "https://www.peterputnam.org/outline-of-a-functional-model-of-the-nervous-system-putnam/fuller-1964"
+                "https://www.peterputnam.org/outline-of-a-functional-model-of-the-nervous-system-putnam/fuller-1964",
+                "-o",
+                "fuller-1964.md"
             ],
             "console": "integratedTerminal",
             "justMyCode": true
