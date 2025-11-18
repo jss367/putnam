@@ -14,6 +14,8 @@ from PIL import Image
 from bs4 import BeautifulSoup, NavigableString, Tag
 from tqdm import tqdm
 
+from cleanup import clean_markdown
+
 
 logger = logging.getLogger("extract_article")
 
@@ -274,6 +276,7 @@ def extract(url: str) -> str:
     remove_unwanted_nodes(soup)
     content = find_main_content(soup)
     markdown = content_to_markdown(content, url)
+    markdown = clean_markdown(markdown)
     title_node = soup.find("title")
     title = title_node.get_text().strip() if title_node else None
     logger.info("Extraction complete for %s", url)
