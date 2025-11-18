@@ -1,6 +1,6 @@
 # Putnam Text Extractor
 
-A small utility to extract clean, markdown-formatted text from web articles. The script fetches the HTML, removes boilerplate elements, and converts the main content into readable text.
+A small utility to extract clean, markdown-formatted text from web articles. The script fetches the HTML, removes boilerplate elements, converts the main content into readable text, and applies light OCR-friendly cleanup (removing hyphenated line breaks, normalizing whitespace, etc.).
 
 ## Setup
 
