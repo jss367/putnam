@@ -1,10 +1,14 @@
 import argparse
 import datetime as dt
 import sys
+from functools import lru_cache
+from io import BytesIO
 from typing import Iterable, List, Optional
 from urllib.parse import urljoin
 
+import pytesseract
 import requests
+from PIL import Image
 from bs4 import BeautifulSoup, NavigableString, Tag
 
 
@@ -70,6 +74,47 @@ def inline_markdown(node: Tag | NavigableString, base_url: str) -> str:
     return ''.join(inline_markdown(child, base_url) for child in node.children)
 
 
+def fetch_image(url: str) -> Image.Image:
+    response = requests.get(url, headers=HEADERS, timeout=60)
+    response.raise_for_status()
+    return Image.open(BytesIO(response.content))
+
+
+@lru_cache(maxsize=256)
+def ocr_image(url: str) -> Optional[str]:
+    try:
+        with fetch_image(url) as img:
+            max_dim = 2000
+            if max(img.size) > max_dim:
+                img.thumbnail((max_dim, max_dim))
+
+            if img.mode != "L":
+                img = img.convert("L")
+
+            text = pytesseract.image_to_string(img, config="--psm 6")
+            cleaned = text.strip()
+            return cleaned or None
+    except Exception:
+        return None
+
+
+def image_markdown(node: Tag, base_url: str) -> List[str]:
+    src = node.get("src") or node.get("data-src") or node.get("data-full-url")
+    alt_text = (node.get("alt") or "").strip()
+    lines: List[str] = []
+
+    if src:
+        absolute = urljoin(base_url, src)
+        ocr_text = ocr_image(absolute)
+        if ocr_text:
+            lines.append(ocr_text + "\n")
+
+    if alt_text:
+        lines.append(alt_text + "\n")
+
+    return lines
+
+
 def block_markdown(node: Tag, base_url: str, indent: int = 0) -> List[str]:
     lines: List[str] = []
     name = node.name.lower()
@@ -129,6 +174,10 @@ def block_markdown(node: Tag, base_url: str, indent: int = 0) -> List[str]:
                 else:
                     inner_lines.extend(block_markdown(child, base_url, indent))
         lines.extend(inner_lines)
+        return lines
+
+    if name == "img":
+        lines.extend(image_markdown(node, base_url))
         return lines
 
     # Fallback: process children
