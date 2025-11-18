@@ -12,6 +12,7 @@ import pytesseract
 import requests
 from PIL import Image
 from bs4 import BeautifulSoup, NavigableString, Tag
+from tqdm import tqdm
 
 
 logger = logging.getLogger("extract_article")
@@ -37,7 +38,8 @@ def fetch_html(url: str) -> str:
 def remove_unwanted_nodes(soup: BeautifulSoup) -> None:
     for selector in ["script", "style", "noscript", "header", "footer", "nav", "form"]:
         removed = 0
-        for node in soup.select(selector):
+        nodes = soup.select(selector)
+        for node in tqdm(nodes, desc=f"Removing <{selector}> elements", leave=False):
             node.decompose()
             removed += 1
         if removed:
@@ -242,7 +244,8 @@ def render_list_item(item: Tag, base_url: str, indent: int, bullet: str) -> List
 def content_to_markdown(content: Tag, base_url: str) -> str:
     logger.info("Converting main content to markdown")
     lines: List[str] = []
-    for child in content.children:
+    children = list(content.children)
+    for child in tqdm(children, desc="Processing content blocks", leave=False):
         if isinstance(child, NavigableString):
             text = str(child).strip()
             if text:
