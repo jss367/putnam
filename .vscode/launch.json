@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Extract article (Fuller 1964)",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/extract_article.py",
+            "args": [
+                "https://www.peterputnam.org/outline-of-a-functional-model-of-the-nervous-system-putnam/fuller-1964"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        }
+    ]
+}
