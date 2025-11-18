@@ -4,6 +4,12 @@ A small utility to extract clean, markdown-formatted text from web articles. The
 
 ## Setup
 
+Install Tesseract OCR (required for extracting text from image-based pages):
+
+```bash
+sudo apt-get update && sudo apt-get install -y tesseract-ocr
+```
+
 Create a virtual environment and install dependencies:
 
 ```bash
